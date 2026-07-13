@@ -14,8 +14,9 @@ import os
 # URL nhom Facebook muon comment bai dau tien
 GROUP_URL = "https://www.facebook.com/groups/880359772330567/"  # <- Thay link nhom cua ban
 
+import os
 # Groq API key
-GROQ_API_KEY = "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"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 
 # Thu muc anh dinh kem vao binh luan (None = khong dinh kem anh)
 IMAGE_DIR = r"D:\AIML_Usecases\ai-comment-bot-main\images\vinfast"

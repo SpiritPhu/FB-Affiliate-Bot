@@ -109,6 +109,7 @@ venv.bak/
 cookies/
 config.json
 # data/running_lists.xlsx
+*.ipynb
 
 # Spyder project settings
 .spyderproject
