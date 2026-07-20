@@ -29,8 +29,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 
 
-from groq import Groq
 from dotenv import load_dotenv
+from ollama import Client
 
 load_dotenv()
 
@@ -38,12 +38,15 @@ def spin_post_content(base_content, api_key=None):
     if api_key is None:
         api_key = os.getenv("GROQ_API_KEY")
     """
-    Sử dụng Groq API để xào bài (spin content), giúp bài post mỗi group có sự khác biệt nhẹ, 
+    Sử dụng Ollama Cloud để xào bài (spin content), giúp bài post mỗi group có sự khác biệt nhẹ, 
     tránh bị Facebook đánh dấu spam.
     """
-    print("🤖 Đang nhờ Groq làm mới nội dung bài post...")
+    print("🤖 Đang nhờ Ollama làm mới nội dung bài post...")
     try:
-        client = Groq(api_key=api_key)
+        client = Client(
+            host='https://api.ollama.com',
+            headers={'Authorization': 'Bearer ff1eb1e4ac434176991aa7b1434b2550.uvXgs2n8Ur4mSerdzd0sI-Ku'}
+        )
         
         prompt = f"""
 Bạn là một người dùng mạng xã hội Facebook. Tôi có một nội dung bài viết dưới đây muốn đăng lên nhiều hội nhóm khác nhau.
@@ -51,7 +54,7 @@ Bạn là một người dùng mạng xã hội Facebook. Tôi có một nội d
 
 Yêu cầu bắt buộc:
 1. Giữ nguyên 100% các đường link (ví dụ shopee, facebook...). Không được đổi link, không làm mất link.
-2. Chỉ viết 1 câu, tối đa là 2 câu ngắn gọn.
+2. Chỉ viết 1 câu thật tự nhiên, gần gũi.
 3. Cố gắng giữ nguyên ý chính, giữ thái độ vui vẻ, thân thiện, đời thường (có thể dùng icon phù hợp).
 5. CHỈ TRẢ VỀ nội dung bài viết đã được viết lại, KHÔNG CÓ TỪ NGỮ THỪA (như "Đây là bài viết...", "Dưới đây là...").
 
@@ -61,13 +64,12 @@ Nội dung gốc cần viết lại:
 '''
 """
         
-        chat_completion = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}],
-            model="llama-3.3-70b-versatile",
-            temperature=0.85 # Temperature khá cao giúp mỗi lần sinh ra một bản thể khác nhau
+        response = client.chat(
+            model='gpt-oss:20b-cloud',
+            messages=[{'role': 'user', 'content': prompt}],
         )
         
-        new_content = chat_completion.choices[0].message.content.strip()
+        new_content = response['message']['content'].strip()
         
         # Lọc bỏ dấu nháy thừa nếu AI vô tình sinh ra ở đầu/cuối
         if new_content.startswith('"') and new_content.endswith('"'):
@@ -78,7 +80,7 @@ Nội dung gốc cần viết lại:
         return new_content.strip()
         
     except Exception as e:
-        print(f"⚠️ Lỗi khi gọi Groq API: {e}")
+        print(f"⚠️ Lỗi khi gọi Ollama API: {e}")
         # Nếu rớt mạng hoặc lỗi API, trả về bài gốc để tool đăng bài không bị ngắt quãng
         return base_content
 

@@ -104,34 +104,31 @@ def attach_image_to_comment(driver, image_path: str) -> bool:
         return False
 
 # ============================================================
-# AI - Tao binh luan bang Groq (LLaMA 3)
+# AI - Tao binh luan bang Ollama Cloud
 # ============================================================
 def generate_groq_comment(post_content: str, prompt_template: str) -> str:
-    from groq import Groq
-    print("   Dang goi Groq AI de tao binh luan...")
-    client = Groq(api_key=GROQ_API_KEY)
+    from ollama import Client
+    print("   Dang goi Ollama AI de tao binh luan...")
+    client = Client(
+        host='https://api.ollama.com',
+        headers={'Authorization': 'Bearer ff1eb1e4ac434176991aa7b1434b2550.uvXgs2n8Ur4mSerdzd0sI-Ku'}
+    )
     
     if "{post_content}" in prompt_template:
         prompt = prompt_template.format(post_content=post_content)
     else:
         prompt = prompt_template + f'\n\nNoi dung bai viet:\n"{post_content}"'
     
-    response = client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        ],
-        model="llama-3.3-70b-versatile",
-        temperature=0.7,
+    response = client.chat(
+        model='gpt-oss:20b-cloud',
+        messages=[{'role': 'user', 'content': prompt}],
     )
     
-    comment = response.choices[0].message.content.strip()
+    comment = response['message']['content'].strip()
     if comment.startswith('"') and comment.endswith('"'):
         comment = comment[1:-1]
         
-    print(f"   Ket qua Groq: {comment[:80]}...")
+    print(f"   Ket qua Ollama: {comment[:80]}...")
     return comment
 
 # ============================================================

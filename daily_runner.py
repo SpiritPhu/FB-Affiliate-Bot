@@ -3,9 +3,7 @@ import os
 import time
 import schedule
 import pandas as pd
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+import undetected_chromedriver as uc
 import importlib
 
 import fb_auth
@@ -33,10 +31,10 @@ def init_all_drivers(config):
     for acc in accounts:
         print(f"\n[{acc}] 🚀 Khởi tạo trình duyệt...")
         try:
-            service = Service(ChromeDriverManager().install())
-            options = webdriver.ChromeOptions()
+            from chrome_helper import get_chrome_driver
+            options = uc.ChromeOptions()
             options.add_argument("--start-maximized")
-            driver = webdriver.Chrome(service=service, options=options)
+            driver = get_chrome_driver(options=options)
             
             # Đăng nhập bằng cookies (Giả định cookie đã được tạo trước bằng Streamlit)
             fb_auth.login_to_facebook_with_cookies(driver, acc, "")

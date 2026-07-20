@@ -101,12 +101,15 @@ def attach_image_to_comment(driver, image_path: str) -> bool:
         return False
 
 # ============================================================
-# AI - Tao binh luan bang Groq (LLaMA 3)
+# AI - Tao binh luan bang Ollama Cloud
 # ============================================================
 def generate_groq_comment(post_content: str) -> str:
-    from groq import Groq
-    print("   Dang goi Groq AI de tao binh luan...")
-    client = Groq(api_key=GROQ_API_KEY)
+    from ollama import Client
+    print("   Dang goi Ollama AI de tao binh luan...")
+    client = Client(
+        host='https://api.ollama.com',
+        headers={'Authorization': 'Bearer ff1eb1e4ac434176991aa7b1434b2550.uvXgs2n8Ur4mSerdzd0sI-Ku'}
+    )
     
     prompt = f"""
 Bạn là một người dùng mạng xã hội bình thường, đọc bài post liên quan đến xe ô tô điện vinfast và đưa ra gợi ý về việc đã tìm thấy 1 sản phẩm decor xe vô cùng phù hợp và hiện đại với chiếc xe đang được nêu đến trong bài post.
@@ -122,22 +125,16 @@ Noi dung bai viet:
 YEU CAU QUAN TRONG: Viết những câu thật ngắn và tự nhiên như một người dùng thông thường chia sẽ, không viết dài dòng.
 """
     
-    response = client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        ],
-        model="llama-3.3-70b-versatile",
-        temperature=0.7,
+    response = client.chat(
+        model='gpt-oss:20b-cloud',
+        messages=[{'role': 'user', 'content': prompt}],
     )
     
-    comment = response.choices[0].message.content.strip()
+    comment = response['message']['content'].strip()
     if comment.startswith('"') and comment.endswith('"'):
         comment = comment[1:-1]
         
-    print(f"   Ket qua Groq: {comment[:80]}...")
+    print(f"   Ket qua Ollama: {comment[:80]}...")
     return comment
 
 # ============================================================

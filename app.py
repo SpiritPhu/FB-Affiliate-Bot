@@ -8,9 +8,7 @@ import time
 # Đảm bảo đường dẫn hiện tại được nhận diện
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+import undetected_chromedriver as uc
 import importlib
 
 # Tắt tự động reload của Streamlit khi các file cấu hình khác thay đổi liên tục
@@ -27,10 +25,10 @@ def init_driver():
 
     if st.session_state.driver is None:
         try:
-            service = Service(ChromeDriverManager().install())
-            options = webdriver.ChromeOptions()
+            from chrome_helper import get_chrome_driver
+            options = uc.ChromeOptions()
             options.add_argument("--start-maximized")
-            st.session_state.driver = webdriver.Chrome(service=service, options=options)
+            st.session_state.driver = get_chrome_driver(options=options)
             st.success("Khởi tạo trình duyệt thành công!")
         except Exception as e:
             st.error(f"Lỗi khởi tạo trình duyệt: {e}")
